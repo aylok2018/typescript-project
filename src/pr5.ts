@@ -1,30 +1,11 @@
-// src/shop.ts
-
-/**
- * Практична робота: Управління товарами (типи, пошук, фільтрація, кошик)
- *
- * Файл містить:
- * - типи товарів (BaseProduct, Electronics, Clothing, Book)
- * - функції: findProduct, filterByPrice, addToCart, calculateTotal
- * - перевірки вхідних даних
- * - приклад використання (тестові дані + демонстрація)
- */
-
-/* =========================
-   Крок 1 — Типи товарів
-   ========================= */
-
 export type BaseProduct = {
   id: number;
   name: string;
   price: number;
-  // опціональні базові поля
   description?: string;
-  // метадані (можна розширити)
   inStock?: boolean;
 };
 
-/** Електроніка */
 export type Electronics = BaseProduct & {
   category: "electronics";
   brand?: string;
@@ -32,15 +13,13 @@ export type Electronics = BaseProduct & {
   powerWatts?: number;
 };
 
-/** Одяг */
 export type Clothing = BaseProduct & {
   category: "clothing";
-  size?: string;          // наприклад "M", "L"
-  material?: string;      // наприклад "cotton"
+  size?: string;         
+  material?: string;      
   gender?: "male" | "female" | "unisex";
 };
 
-/** Книги */
 export type Book = BaseProduct & {
   category: "books";
   author?: string;
@@ -48,18 +27,7 @@ export type Book = BaseProduct & {
   publisher?: string;
 };
 
-/* Можна створювати інші спеціальні типи аналогічно */
 
-/* =========================
-   Крок 2 — Функції для пошуку і фільтрації
-   ========================= */
-
-/**
- * Знаходить товар за id у масиві товарів.
- * @param products Масив товарів типу T
- * @param id Ідентифікатор для пошуку (має бути цілим додатнім)
- * @returns знайдений товар або undefined
- */
 export const findProduct = <T extends BaseProduct>(
   products: T[],
   id: number
@@ -70,12 +38,6 @@ export const findProduct = <T extends BaseProduct>(
   return products.find((p) => p.id === id);
 };
 
-/**
- * Фільтрує товари за максимальною ціною (менше або рівно maxPrice)
- * @param products Масив товарів типу T
- * @param maxPrice Максимальна ціна (має бути >= 0)
- * @returns Масив товарів з ціною <= maxPrice
- */
 export const filterByPrice = <T extends BaseProduct>(products: T[], maxPrice: number): T[] => {
   if (!Array.isArray(products)) throw new TypeError("products має бути масивом");
   if (typeof maxPrice !== "number" || Number.isNaN(maxPrice) || maxPrice < 0) {
@@ -85,25 +47,12 @@ export const filterByPrice = <T extends BaseProduct>(products: T[], maxPrice: nu
   return products.filter((p) => typeof p.price === "number" && p.price <= maxPrice);
 };
 
-/* =========================
-   Крок 3 — Кошик
-   ========================= */
 
 export type CartItem<T extends BaseProduct> = {
   product: T;
   quantity: number;
 };
 
-/**
- * Додає товар у кошик.
- * Якщо товар вже в кошику — кількість збільшується.
- * Перевіряє коректність вхідних даних.
- *
- * @param cart Існуючий масив елементів кошика (не мутуємо вхідний масив — повертаємо новий)
- * @param product Товар для додавання (не може бути undefined/null)
- * @param quantity Кількість (ціле додатнє число)
- * @returns Новий масив CartItem<T>
- */
 export const addToCart = <T extends BaseProduct>(
   cart: CartItem<T>[],
   product: T | undefined | null,
@@ -111,19 +60,16 @@ export const addToCart = <T extends BaseProduct>(
 ): CartItem<T>[] => {
   if (!Array.isArray(cart)) throw new TypeError("cart має бути масивом");
   if (!product) {
-    // якщо передали undefined (наприклад результат findProduct), просто повертаємо незмінний кошик
     return cart.slice();
   }
   if (!Number.isInteger(quantity) || quantity <= 0) {
     throw new TypeError("quantity має бути додатнім цілим числом");
   }
 
-  // Копія кошика (іммутабельно)
   const newCart = cart.map((it) => ({ ...it }));
 
   const existingIndex = newCart.findIndex((it) => it.product.id === product.id);
   if (existingIndex >= 0) {
-    // Оновлюємо кількість
     const existing = newCart[existingIndex];
     newCart[existingIndex] = { product: existing.product, quantity: existing.quantity + quantity };
   } else {
@@ -133,13 +79,6 @@ export const addToCart = <T extends BaseProduct>(
   return newCart;
 };
 
-/**
- * Підраховує загальну суму кошика.
- * Перевіряє, що у кожного елемента є валідна ціна.
- *
- * @param cart Масив елементів кошика
- * @returns загальна вартість (число)
- */
 export const calculateTotal = <T extends BaseProduct>(cart: CartItem<T>[]): number => {
   if (!Array.isArray(cart)) throw new TypeError("cart має бути масивом");
 
@@ -153,10 +92,6 @@ export const calculateTotal = <T extends BaseProduct>(cart: CartItem<T>[]): numb
     return sum + item.product.price * item.quantity;
   }, 0);
 };
-
-/* =========================
-   Крок 4 — Приклади використання (тестові дані)
-   ========================= */
 
 const electronicsSample: Electronics[] = [
   {
@@ -210,7 +145,6 @@ const booksSample: Book[] = [
   }
 ];
 
-/* Демонстрація функцій — ці виклики можна запускати в node (після компіляції) або в браузері */
 function demo(): void {
   console.log("=== Demo: findProduct ===");
   const foundPhone = findProduct(electronicsSample, 1);
@@ -223,18 +157,14 @@ function demo(): void {
   console.log("=== Demo: addToCart & calculateTotal ===");
   let cart: CartItem<BaseProduct>[] = [];
 
-  // додаємо телефон (знайдений)
-  cart = addToCart(cart, foundPhone, 1); // якщо foundPhone undefined — addToCart поверне копію кошика без змін
-  // додаємо футболку
+  cart = addToCart(cart, foundPhone, 1);
   cart = addToCart(cart, clothingSample[0], 2);
-  // додаємо книгу
   cart = addToCart(cart, booksSample[0], 1);
 
   console.log("Кошик:", cart);
   const total = calculateTotal(cart);
   console.log("Загальна сума:", total);
 
-  // приклад обробки недійсних даних (показово)
   try {
     addToCart(cart, clothingSample[0], 0);
   } catch (err) {
@@ -242,12 +172,8 @@ function demo(): void {
   }
 }
 
-// Запускаємо demo автоматично, якщо цей файл виконують без модульного імпорту (не обов'язково)
 if (typeof window === "undefined" || typeof window.document === "undefined") {
-  // Node.js середовище — можна виконати demo
   demo();
 } else {
-  // У браузері можна викликати demo() вручну з консолі
-  // demo();
 }
 
