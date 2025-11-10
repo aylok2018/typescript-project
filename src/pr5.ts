@@ -1,3 +1,4 @@
+// Типи товарів //
 export type BaseProduct = {
   id: number;
   name: string;
@@ -27,7 +28,8 @@ export type Book = BaseProduct & {
   publisher?: string;
 };
 
-
+// Функції для роботи з товарами //
+// Знаходить товар за ID //
 export const findProduct = <T extends BaseProduct>(
   products: T[],
   id: number
@@ -37,7 +39,7 @@ export const findProduct = <T extends BaseProduct>(
 
   return products.find((p) => p.id === id);
 };
-
+// Фільтрує товари за максимальною ціною //
 export const filterByPrice = <T extends BaseProduct>(products: T[], maxPrice: number): T[] => {
   if (!Array.isArray(products)) throw new TypeError("products має бути масивом");
   if (typeof maxPrice !== "number" || Number.isNaN(maxPrice) || maxPrice < 0) {
@@ -47,12 +49,12 @@ export const filterByPrice = <T extends BaseProduct>(products: T[], maxPrice: nu
   return products.filter((p) => typeof p.price === "number" && p.price <= maxPrice);
 };
 
-
+// Кошик //
 export type CartItem<T extends BaseProduct> = {
   product: T;
   quantity: number;
 };
-
+// Додає товар у кошик або збільшує кількість існуючого //
 export const addToCart = <T extends BaseProduct>(
   cart: CartItem<T>[],
   product: T | undefined | null,
@@ -78,7 +80,7 @@ export const addToCart = <T extends BaseProduct>(
 
   return newCart;
 };
-
+// Обчислює загальну суму кошика //
 export const calculateTotal = <T extends BaseProduct>(cart: CartItem<T>[]): number => {
   if (!Array.isArray(cart)) throw new TypeError("cart має бути масивом");
 
@@ -92,7 +94,7 @@ export const calculateTotal = <T extends BaseProduct>(cart: CartItem<T>[]): numb
     return sum + item.product.price * item.quantity;
   }, 0);
 };
-
+// Тестові дані //
 const electronicsSample: Electronics[] = [
   {
     id: 1,
