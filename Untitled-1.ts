@@ -1,6 +1,4 @@
 
-// Тема: Система управління розкладом в університеті
-
 /* ---------------------- Типи ---------------------- */
 
 // Дні тижня
@@ -231,3 +229,4 @@ console.log("Most popular type:", getMostPopularCourseType());
 console.log("Reassign classroom:", reassignClassroom(1, "B201"));
 cancelLesson(2);
 console.log("Final schedule:", schedule);
+
